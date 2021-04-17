@@ -1,28 +1,55 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+  <div>
+    <h1>List of Books</h1>
+    <div class="align-right">
+      <title-filter @updateTitle="updateTitle" :title="filterTitle" />
+    </div>
+    <app-articles :articles="filteredArticles" />
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import AppArticles from "@/components/App-Articles";
+import TitleFilter from "@/components/inputs/Title-Filter";
+
+import axios from "axios";
 
 export default {
   name: "App",
-  components: {
-    HelloWorld,
+  components: { TitleFilter, AppArticles },
+  data() {
+    return {
+      articles: [],
+      filterTitle: "",
+    };
+  },
+  computed: {
+    filteredArticles() {
+      return this.articles.filter((item) =>
+        item.title.includes(this.filterTitle)
+      );
+    },
+  },
+  async mounted() {
+    this.articles = await this.getData();
+  },
+  methods: {
+    async getData() {
+      const { data } = await axios(
+        "https://fakerestapi.azurewebsites.net/api/v1/Books"
+      );
+      return data;
+    },
+    updateTitle(title) {
+      this.filterTitle = title;
+    },
   },
 };
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.align-right {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
